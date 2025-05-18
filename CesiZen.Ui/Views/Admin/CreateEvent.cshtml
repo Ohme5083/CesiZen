@@ -1,0 +1,36 @@
+﻿@model CesiZen.Data.Models.StressEventModel
+
+@{
+    ViewData["Title"] = "Créer un nouvel événement";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="CreateEvent" method="post" class="needs-validation" novalidate>
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Titre</label>
+        <input asp-for="Title" class="form-control" required />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Date" class="form-label">Date</label>
+        <input asp-for="Date" type="date" class="form-control" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        <i class="bi bi-save me-1"></i> Enregistrer
+    </button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Annuler</a>
+</form>
+
+@section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+}

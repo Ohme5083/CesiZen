@@ -1,0 +1,134 @@
+﻿/* Couleur principale apaisante */
+:root {
+    --primary-color: #4a90e2; /* bleu doux */
+    --primary-hover: #357ABD;
+    --secondary-color: #7a8a99; /* gris doux */
+    --background-light: #f0f4f8;
+    --text-dark: #2e3a45;
+}
+
+/* Boutons Bootstrap personnalisés */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    font-weight: 600;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(74, 144, 226, 0.25);
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background-color: var(--primary-hover);
+        border-color: var(--primary-hover);
+        box-shadow: 0 6px 12px rgba(53, 122, 189, 0.4);
+        outline: none;
+    }
+
+/* Liens de navigation */
+.nav-link {
+    color: var(--text-dark);
+    transition: color 0.3s ease, text-decoration 0.3s ease;
+    font-weight: 500;
+}
+
+    .nav-link:hover,
+    .nav-link:focus {
+        color: var(--primary-color) !important;
+        text-decoration: underline;
+    }
+
+/* Inputs et formulaires */
+.form-control {
+    border-radius: 0.5rem;
+    border: 1.5px solid var(--secondary-color);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-size: 1rem;
+    color: var(--text-dark);
+    background-color: white;
+}
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 6px rgba(74, 144, 226, 0.5);
+        outline: none;
+    }
+
+    /* Placeholders plus doux */
+    .form-control::placeholder {
+        color: var(--secondary-color);
+        opacity: 0.8;
+        font-style: italic;
+    }
+
+/* Form-check inputs (checkbox, radio) */
+.form-check-input {
+    border-radius: 0.3rem;
+    border: 1.5px solid var(--secondary-color);
+    width: 1.25rem;
+    height: 1.25rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 6px rgba(74, 144, 226, 0.6);
+    }
+
+    /* Focus sur checkbox et radio */
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.25rem rgba(74, 144, 226, 0.5);
+        border-color: var(--primary-color);
+        outline: none;
+    }
+
+/* Form-floating placeholders alignement */
+.form-floating > .form-control::placeholder {
+    color: var(--secondary-color);
+    text-align: right;
+    transition: text-align 0.3s ease;
+}
+
+.form-floating > .form-control:focus::placeholder {
+    text-align: left;
+}
+
+/* Alertes */
+.alert-primary {
+    background-color: #e6f0fa;
+    border-color: #b3d1ff;
+    color: var(--primary-color);
+    border-radius: 0.5rem;
+    font-weight: 600;
+}
+
+/* Cards avec ombre douce */
+.card {
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.1);
+    border: none;
+    transition: box-shadow 0.3s ease;
+}
+
+    .card:hover {
+        box-shadow: 0 6px 20px rgba(74, 144, 226, 0.15);
+    }
+
+/* Boutons secondaires */
+.btn-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: white;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+    .btn-secondary:hover,
+    .btn-secondary:focus {
+        background-color: #626f7f;
+        border-color: #626f7f;
+        color: white;
+        outline: none;
+    }

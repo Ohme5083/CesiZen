@@ -1,0 +1,33 @@
+﻿@model CesiZen.Data.Models.StressQuestionModel
+
+@{
+    ViewData["Title"] = "Ajouter une question";
+    var eventId = ViewBag.EventId as int?;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="AddQuestion" method="post" class="needs-validation" novalidate>
+    <input type="hidden" name="eventId" value="@eventId" />
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Titre de la question</label>
+        <input asp-for="Title" class="form-control" required />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Point" class="form-label">Points associés</label>
+        <input asp-for="Point" type="number" class="form-control" min="0" required />
+        <span asp-validation-for="Point" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        <i class="bi bi-plus-circle me-1"></i> Ajouter
+    </button>
+    <a asp-action="EditEvent" asp-route-id="@eventId" class="btn btn-secondary ms-2">Annuler</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

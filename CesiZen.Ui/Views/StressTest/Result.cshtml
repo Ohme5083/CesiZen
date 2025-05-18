@@ -1,0 +1,21 @@
+﻿@model StressTestViewModel
+
+@{
+    ViewData["Title"] = "Result";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Résultat du questionnaire</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Score total</h5>
+            <p class="display-4">@Model.TotalScore</p>
+
+            <h5 class="card-title mt-4">Description</h5>
+            <p class="lead">@Model.Description</p>
+        </div>
+    </div>
+
+    <a asp-action="Index" class="btn btn-primary mt-4">Recommencer</a>
+</div>

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CesiZen.Data", "CesiZen.Data\CesiZen.Data.csproj", "{9BA17E0F-8916-4FEE-898F-3B99C89544C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CesiZen.Ui", "CesiZen.Ui\CesiZen.Ui.csproj", "{EA80A7BB-8D54-4C02-8E30-C0B4E12B93D1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9BA17E0F-8916-4FEE-898F-3B99C89544C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BA17E0F-8916-4FEE-898F-3B99C89544C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BA17E0F-8916-4FEE-898F-3B99C89544C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BA17E0F-8916-4FEE-898F-3B99C89544C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA80A7BB-8D54-4C02-8E30-C0B4E12B93D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA80A7BB-8D54-4C02-8E30-C0B4E12B93D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA80A7BB-8D54-4C02-8E30-C0B4E12B93D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA80A7BB-8D54-4C02-8E30-C0B4E12B93D1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {60620294-FD38-4F33-A6FE-9A972040CCB8}
+	EndGlobalSection
+EndGlobal

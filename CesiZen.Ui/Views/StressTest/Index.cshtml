@@ -1,0 +1,56 @@
+﻿@model StressTestViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2 class="mb-4">@Model.QuestionnaireTitle</h2>
+
+<form asp-action="Index" method="post">
+    <div class="mb-4">
+        <label asp-for="QuestionnaireId" class="form-label">Choisissez un questionnaire :</label>
+        <select asp-for="QuestionnaireId" asp-items="Model.AvailableQuestionnaires" class="form-select"
+                onchange="document.getElementById('submit-load').click();">
+            <option value="">-- Sélectionner un questionnaire --</option>
+        </select>
+    </div>
+
+    <!-- Bouton caché pour charger les questions -->
+    <button id="submit-load" type="submit" name="submitType" value="loadQuestions" class="d-none"></button>
+
+    @if (Model.Questions?.Any() == true)
+    {
+        <h4 class="mb-3">@Model.QuestionnaireTitle</h4>
+
+        <div class="list-group mb-3">
+            @for (int i = 0; i < Model.Questions.Count; i++)
+            {
+                <div class="list-group-item d-flex align-items-center">
+                    <input class="form-check-input me-3" type="checkbox" asp-for="Questions[@i].IsSelected" id="q_@i" />
+                    <label class="form-check-label flex-grow-1" for="q_@i">
+                        @Model.Questions[i].Title <span class="badge bg-primary ms-2">@Model.Questions[i].Point pts</span>
+                    </label>
+                    <input type="hidden" asp-for="Questions[@i].Id" />
+                    <input type="hidden" asp-for="Questions[@i].Title" />
+                    <input type="hidden" asp-for="Questions[@i].Point" />
+                </div>
+            }
+        </div>
+
+        <button type="submit" name="submitType" value="submitAnswers" class="btn btn-success">Calculer mon score</button>
+    }
+</form>
+
+
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger mt-3" role="alert">
+        <ul class="mb-0">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}

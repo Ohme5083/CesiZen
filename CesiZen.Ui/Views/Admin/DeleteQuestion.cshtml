@@ -1,0 +1,25 @@
+﻿@model CesiZen.Data.Models.StressQuestionModel
+
+@{
+    ViewData["Title"] = "Supprimer la question";
+    var eventId = ViewBag.EventId as int?;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="alert alert-danger">
+    <p>
+        Êtes-vous sûr(e) de vouloir supprimer la question suivante ?
+    </p>
+    <p><strong>@Model.Title</strong> (Points : @Model.Point)</p>
+</div>
+
+<form asp-action="DeleteQuestion" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" name="eventId" value="@eventId" />
+
+    <button type="submit" class="btn btn-danger">
+        <i class="bi bi-trash me-1"></i> Supprimer
+    </button>
+    <a asp-action="EditEvent" asp-route-id="@eventId" class="btn btn-secondary ms-2">Annuler</a>
+</form>

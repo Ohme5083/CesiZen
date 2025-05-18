@@ -1,0 +1,31 @@
+﻿@model IEnumerable<CesiZen.Data.Models.InformationModel>
+
+@{
+    ViewData["Title"] = "Accueil";
+}
+
+<div class="container mt-5">
+    <div class="text-center">
+        <h1 class="display-4 mb-3">Bienvenue sur CesiZen</h1>
+        <p class="lead">
+            Explorez des ressources et des informations essentielles sur la santé mentale pour mieux vous comprendre et prendre soin de vous.
+        </p>
+        <hr class="my-4" />
+        <h3>Dernières informations</h3>
+        <ul class="list-group">
+            @foreach (var info in Model)
+            {
+                <li class="list-group-item">
+                    <h5>@info.Title</h5>
+                    <p class="mb-1">@info.Texte</p>
+                    <small class="text-muted">@info.Date</small>
+                    <a class="btn btn-link btn-sm" href="@Url.Action("Details", "Information", new { id = info.Id })">Lire la suite</a>
+                </li>
+            }
+        </ul>
+        <a class="btn btn-primary btn-lg" href="/Information/Index">
+            <i class="bi bi-journal-text"></i> Voir toutes les informations santé mentale
+        </a>
+    </div>
+
+</div>

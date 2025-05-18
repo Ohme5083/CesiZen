@@ -1,0 +1,40 @@
+﻿@model CesiZen.Data.Models.InformationModel
+
+@{
+    ViewData["Title"] = "Supprimer l'information";
+}
+
+<div class="container mt-4">
+    <h1 class="h3 text-danger mb-3">Confirmer la suppression</h1>
+
+    <div class="alert alert-warning">
+        <h5 class="mb-0">Es-tu sûr de vouloir supprimer cette information ?</h5>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Title)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Title)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Texte)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Texte)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Date)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Date)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <form asp-action="Delete" class="d-flex justify-content-between">
+        <input type="hidden" asp-for="Id" />
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Retour à la liste
+        </a>
+
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Supprimer définitivement
+        </button>
+    </form>
+</div>

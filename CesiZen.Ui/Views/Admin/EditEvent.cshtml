@@ -1,0 +1,77 @@
+﻿@model CesiZen.Data.Models.StressEventModel
+
+@{
+    ViewData["Title"] = "Modifier l'événement";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="EditEvent" method="post" class="needs-validation" novalidate>
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Titre</label>
+        <input asp-for="Title" class="form-control" required />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Date" class="form-label">Date</label>
+        <input asp-for="Date" type="date" class="form-control" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        <i class="bi bi-save me-1"></i> Sauvegarder
+    </button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Retour</a>
+</form>
+
+<hr />
+
+<h3>Questions associées</h3>
+
+<a asp-action="AddQuestion" asp-route-eventId="@Model.Id" class="btn btn-success mb-3">
+    <i class="bi bi-plus-circle me-1"></i> Ajouter une question
+</a>
+
+@if (Model.StressQuestions != null && Model.StressQuestions.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Points</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var question in Model.StressQuestions)
+            {
+                <tr>
+                    <td>@question.Title</td>
+                    <td>@question.Point</td>
+                    <td>
+                        <a asp-action="EditQuestion" asp-route-id="@question.Id" asp-route-eventId="@Model.Id" class="btn btn-sm btn-warning me-1">
+                            <i class="bi bi-pencil-square"></i> Modifier
+                        </a>
+                        <a asp-action="DeleteQuestion" asp-route-id="@question.Id" asp-route-eventId="@Model.Id" class="btn btn-sm btn-danger"
+                           onclick="return confirm('Voulez-vous vraiment supprimer cette question ?');">
+                            <i class="bi bi-trash"></i> Supprimer
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Aucune question ajoutée pour cet événement.</p>
+}
