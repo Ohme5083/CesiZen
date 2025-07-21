@@ -31,6 +31,12 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<CesiZenDbContext>();
+    dbContext.Database.Migrate(); // ou .EnsureCreated() pour une version simple sans migrations
+}
+
 
 if (!app.Environment.IsDevelopment())
 {
