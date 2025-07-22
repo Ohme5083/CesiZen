@@ -8,6 +8,12 @@ services:
       - "1433:1433"
     networks:
       - cesinet
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P toto12345* -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   cesizen.ui:
     image: ${DOCKER_REGISTRY-}cesizenui
@@ -17,7 +23,8 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=CesiZenDb;User Id=sa;Password=toto12345*;Encrypt=False;TrustServerCertificate=True;
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
     ports:
       - "8080:8080"
     networks:
