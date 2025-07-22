@@ -18,6 +18,8 @@ services:
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=CesiZenDb;User Id=sa;Password=toto12345*;Encrypt=False;TrustServerCertificate=True;
     depends_on:
       - sqlserver
+    ports:
+      - "8080:8080"
     networks:
       - cesinet
 
