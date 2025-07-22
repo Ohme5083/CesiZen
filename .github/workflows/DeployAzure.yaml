@@ -51,10 +51,8 @@ jobs:
           script: |
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ohme5083 --password-stdin
 
-            # Crée le dossier de déploiement
             mkdir -p ~/deploy
 
-            # Écrit le fichier docker-compose.yml sur la VM
             cat > ~/deploy/docker-compose.yml <<EOF
             version: "3.8"
             services:
@@ -71,17 +69,19 @@ jobs:
               cesizen.ui:
                 image: ghcr.io/ohme5083/cesizen:${{ github.sha }}
                 environment:
-                  - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=CesiZenDb;User Id=sa;Password=toto12345*;Encrypt=False;TrustServerCertificate=True;
+                  - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=CesiZenDb;User Id=sa;Password=toto12345*;Encrypt=False;TrustServerCertificate=True;
                 depends_on:
                   - sqlserver
                 networks:
                   - cesinet
+                ports:
+                  - "8080:8080"
 
             networks:
               cesinet:
+                driver: bridge
             EOF
 
-            # Installer docker-compose si nécessaire
             if ! command -v docker-compose &> /dev/null
             then
               echo "docker-compose non trouvé, installation..."
@@ -89,6 +89,5 @@ jobs:
               sudo chmod +x /usr/local/bin/docker-compose
             fi
 
-            # Redémarre les containers via docker-compose
             docker-compose -f ~/deploy/docker-compose.yml down || true
             docker-compose -f ~/deploy/docker-compose.yml up -d
