@@ -41,7 +41,7 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to Azure VM via SSH
+      - name: Deploy to Azure VM via SSH with Docker Compose
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VM_HOST }}
@@ -50,6 +50,45 @@ jobs:
           port: 22
           script: |
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ohme5083 --password-stdin
-            docker pull ghcr.io/ohme5083/cesizen:${{ github.sha }}
-            docker rm -f cesizen || true
-            docker run -d --name cesizen -p 8080:8080 ghcr.io/ohme5083/cesizen:${{ github.sha }}
+
+            # Crée le dossier de déploiement
+            mkdir -p ~/deploy
+
+            # Écrit le fichier docker-compose.yml sur la VM
+            cat > ~/deploy/docker-compose.yml <<EOF
+            version: "3.8"
+            services:
+              sqlserver:
+                image: mcr.microsoft.com/mssql/server:2022-latest
+                environment:
+                  SA_PASSWORD: "toto12345*"
+                  ACCEPT_EULA: "Y"
+                ports:
+                  - "1433:1433"
+                networks:
+                  - cesinet
+
+              cesizen.ui:
+                image: ghcr.io/ohme5083/cesizen:${{ github.sha }}
+                environment:
+                  - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=CesiZenDb;User Id=sa;Password=toto12345*;Encrypt=False;TrustServerCertificate=True;
+                depends_on:
+                  - sqlserver
+                networks:
+                  - cesinet
+
+            networks:
+              cesinet:
+            EOF
+
+            # Installer docker-compose si nécessaire
+            if ! command -v docker-compose &> /dev/null
+            then
+              echo "docker-compose non trouvé, installation..."
+              sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+
+            # Redémarre les containers via docker-compose
+            docker-compose -f ~/deploy/docker-compose.yml down || true
+            docker-compose -f ~/deploy/docker-compose.yml up -d
