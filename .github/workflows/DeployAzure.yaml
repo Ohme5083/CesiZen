@@ -52,4 +52,4 @@ jobs:
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ohme5083 --password-stdin
             docker pull ghcr.io/ohme5083/cesizen:${{ github.sha }}
             docker rm -f cesizen || true
-            docker run -d --name cesizen -p 80:80 ghcr.io/ohme5083/cesizen:${{ github.sha }}
+            docker run -d --name cesizen -p 8080:8080 ghcr.io/ohme5083/cesizen:${{ github.sha }}
