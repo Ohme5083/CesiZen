@@ -17,17 +17,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
           file: ./CesiZen.Ui/Dockerfile
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Azure VM via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          password: ${{ secrets.VM_PASSWORD }}
+          port: 22
+          script: |
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ohme5083 --password-stdin
+            docker pull ghcr.io/ohme5083/cesizen:${{ github.sha }}
+            docker rm -f cesizen || true
+            docker run -d --name cesizen -p 80:80 ghcr.io/ohme5083/cesizen:${{ github.sha }}
