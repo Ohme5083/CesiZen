@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CesiZen - Documentation du Projet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px 8px 0 0;
+            margin: -20px -20px 40px -20px;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 30px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+
+        .badge:hover {
+            background-color: #218838;
+        }
+
+        .badge.security {
+            background-color: #dc3545;
+        }
+
+        .badge.quality {
+            background-color: #17a2b8;
+        }
+
+        .badge.coverage {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .toc {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .toc h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            list-style: none;
+            columns: 2;
+            column-gap: 30px;
+        }
+
+        .toc li {
+            margin-bottom: 8px;
+        }
+
+        .toc a {
+            color: #333;
+            text-decoration: none;
+            padding: 5px 0;
+            display: block;
+            transition: color 0.3s;
+        }
+
+        .toc a:hover {
+            color: #667eea;
+        }
+
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 2em;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            color: #34495e;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        .section {
+            margin: 40px 0;
+        }
+
+        .architecture {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .code-block {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            line-height: 1.4;
+        }
+
+        .code-block .comment {
+            color: #68d391;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tech-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .tech-card h4 {
+            color: #667eea;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .requirements {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .requirements h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+
+        .install-steps {
+            counter-reset: step-counter;
+        }
+
+        .install-step {
+            counter-increment: step-counter;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .install-step h3::before {
+            content: counter(step-counter) ". ";
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .metrics-table th,
+        .metrics-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .metrics-table th {
+            background-color: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .metrics-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .workflow-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid #667eea;
+        }
+
+        .workflow-card h4 {
+            color: #667eea;
+            margin-top: 0;
+        }
+
+        .contribution-steps {
+            background-color: #e8f5e8;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .quality-standards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .quality-item {
+            background-color: #d4edda;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #c3e6cb;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 0 0 8px 8px;
+            margin: 40px -20px -20px -20px;
+        }
+
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .highlight {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .toc ul {
+                columns: 1;
+            }
+
+            .badges {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>CesiZen</h1>
+            <p>Une application .NET 9 moderne développée dans le cadre du cursus CESI, intégrant les meilleures pratiques de développement, de qualité et de sécurité.</p>
+            
+            <div class="badges">
+                <a href="https://sonarcloud.io/summary/new_code?id=Ohme5083_CesiZen" class="badge quality">SonarCloud</a>
+                <a href="https://sonarcloud.io/summary/new_code?id=Ohme5083_CesiZen" class="badge quality">Quality Gate</a>
+                <a href="https://sonarcloud.io/summary/new_code?id=Ohme5083_CesiZen" class="badge coverage">Coverage</a>
+                <a href="https://sonarcloud.io/summary/new_code?id=Ohme5083_CesiZen" class="badge security">Security Rating</a>
+                <a href="https://snyk.io/test/github/Ohme5083/CesiZen" class="badge security">Snyk</a>
+            </div>
+        </header>
+
+        <nav class="toc">
+            <h2><span class="emoji">📋</span>Table des matières</h2>
+            <ul>
+                <li><a href="#apercu">Aperçu</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#prerequis">Prérequis</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#utilisation">Utilisation</a></li>
+                <li><a href="#tests">Tests</a></li>
+                <li><a href="#qualite">Qualité et Sécurité</a></li>
+                <li><a href="#cicd">CI/CD</a></li>
+                <li><a href="#contribution">Contribution</a></li>
+                <li><a href="#licence">Licence</a></li>
+            </ul>
+        </nav>
+
+        <section id="apercu" class="section">
+            <h2><span class="emoji">🎯</span>Aperçu</h2>
+            <p>CesiZen est une application développée avec .NET 9, conçue pour démontrer l'implémentation de bonnes pratiques de développement logiciel, incluant :</p>
+            
+            <div class="quality-standards">
+                <div class="quality-item">✅ Architecture en couches</div>
+                <div class="quality-item">✅ Tests unitaires et d'intégration</div>
+                <div class="quality-item">✅ Analyse de qualité de code (SonarCloud)</div>
+                <div class="quality-item">✅ Analyse de sécurité (Snyk)</div>
+                <div class="quality-item">✅ CI/CD avec GitHub Actions</div>
+                <div class="quality-item">✅ Documentation complète</div>
+            </div>
+        </section>
+
+        <section id="architecture" class="section">
+            <h2><span class="emoji">🏗️</span>Architecture</h2>
+            <p>Le projet suit une architecture en couches avec séparation des responsabilités :</p>
+            
+            <div class="architecture">
+                <div class="code-block">
+CesiZen/
+├── CesiZen.Data/          <span class="comment"># Couche d'accès aux données</span>
+│   ├── Models/            <span class="comment"># Modèles de données</span>
+│   ├── Repositories/      <span class="comment"># Repositories</span>
+│   └── Context/           <span class="comment"># Contexte Entity Framework</span>
+├── CesiZen.Ui/            <span class="comment"># Interface utilisateur</span>
+│   ├── Controllers/       <span class="comment"># Contrôleurs MVC/API</span>
+│   ├── Views/             <span class="comment"># Vues Razor</span>
+│   ├── wwwroot/           <span class="comment"># Ressources statiques</span>
+│   └── Services/          <span class="comment"># Services métier</span>
+├── CesiZen.Test/          <span class="comment"># Tests unitaires et d'intégration</span>
+│   ├── UnitTests/         <span class="comment"># Tests unitaires</span>
+│   ├── IntegrationTests/  <span class="comment"># Tests d'intégration</span>
+│   └── Helpers/           <span class="comment"># Utilitaires de test</span>
+└── CesiZen.sln            <span class="comment"># Solution Visual Studio</span>
+                </div>
+            </div>
+
+            <h3>Technologies utilisées</h3>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <h4>Framework</h4>
+                    <p>.NET 9</p>
+                </div>
+                <div class="tech-card">
+                    <h4>Base de données</h4>
+                    <p>Entity Framework Core</p>
+                </div>
+                <div class="tech-card">
+                    <h4>Interface</h4>
+                    <p>ASP.NET Core MVC/Razor Pages</p>
+                </div>
+                <div class="tech-card">
+                    <h4>Tests</h4>
+                    <p>xUnit, Moq</p>
+                </div>
+                <div class="tech-card">
+                    <h4>Qualité</h4>
+                    <p>SonarCloud</p>
+                </div>
+                <div class="tech-card">
+                    <h4>Sécurité</h4>
+                    <p>Snyk</p>
+                </div>
+                <div class="tech-card">
+                    <h4>CI/CD</h4>
+                    <p>GitHub Actions</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="prerequis" class="section">
+            <h2><span class="emoji">📋</span>Prérequis</h2>
+            <div class="requirements">
+                <h3>Avant de commencer, assurez-vous d'avoir installé :</h3>
+                <ul>
+                    <li><a href="https://dotnet.microsoft.com/download/dotnet/9.0">.NET 9 SDK</a></li>
+                    <li><a href="https://visualstudio.microsoft.com/">Visual Studio 2022</a> ou <a href="https://code.visualstudio.com/">VS Code</a></li>
+                    <li><a href="https://git-scm.com/">Git</a></li>
+                    <li><a href="https://www.microsoft.com/sql-server">SQL Server</a> ou <a href="https://docs.microsoft.com/sql/database-engine/configure-windows/sql-server-express-localdb">SQL Server LocalDB</a></li>
+                </ul>
+            </div>
+
+            <h3>Vérification des prérequis</h3>
+            <div class="code-block">
+# Vérifier la version de .NET
+dotnet --version
+
+# Vérifier Git
+git --version
+            </div>
+        </section>
+
+        <section id="installation" class="section">
+            <h2><span class="emoji">🚀</span>Installation</h2>
+            <div class="install-steps">
+                <div class="install-step">
+                    <h3>Cloner le repository</h3>
+                    <div class="code-block">
+git clone https://github.com/Ohme5083/CesiZen.git
+cd CesiZen
+                    </div>
+                </div>
+
+                <div class="install-step">
+                    <h3>Restaurer les dépendances</h3>
+                    <div class="code-block">
+dotnet restore
+                    </div>
+                </div>
+
+                <div class="install-step">
+                    <h3>Configuration de la base de données</h3>
+                    <p>Modifiez la chaîne de connexion dans <code>appsettings.json</code> :</p>
+                    <div class="code-block">
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=CesiZenDb;Trusted_Connection=true;MultipleActiveResultSets=true"
+  }
+}
+                    </div>
+                </div>
+
+                <div class="install-step">
+                    <h3>Appliquer les migrations</h3>
+                    <div class="code-block">
+dotnet ef database update --project CesiZen.Data --startup-project CesiZen.Ui
+                    </div>
+                </div>
+
+                <div class="install-step">
+                    <h3>Compiler le projet</h3>
+                    <div class="code-block">
+dotnet build
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="utilisation" class="section">
+            <h2><span class="emoji">🎮</span>Utilisation</h2>
+            
+            <h3>Démarrer l'application</h3>
+            <div class="code-block">
+# Démarrer l'application web
+dotnet run --project CesiZen.Ui
+
+# Ou utiliser le profil de développement
+dotnet run --project CesiZen.Ui --launch-profile "Development"
+            </div>
+
+            <div class="highlight">
+                <strong>L'application sera accessible à l'adresse :</strong> <code>https://localhost:5001</code> ou <code>http://localhost:5000</code>
+            </div>
+
+            <h3>Commandes utiles</h3>
+            <div class="code-block">
+# Nettoyer la solution
+dotnet clean
+
+# Reconstruire complètement
+dotnet rebuild
+
+# Publier l'application
+dotnet publish --configuration Release --output ./publish
+            </div>
+        </section>
+
+        <section id="tests" class="section">
+            <h2><span class="emoji">🧪</span>Tests</h2>
+            <p>Le projet inclut des tests unitaires et d'intégration utilisant xUnit.</p>
+
+            <h3>Exécuter tous les tests</h3>
+            <div class="code-block">
+dotnet test
+            </div>
+
+            <h3>Exécuter les tests avec couverture</h3>
+            <div class="code-block">
+dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults/
+            </div>
+
+            <h3>Générer un rapport de couverture</h3>
+            <div class="code-block">
+# Installer l'outil de rapport
+dotnet tool install -g dotnet-reportgenerator-globaltool
+
+# Générer le rapport HTML
+reportgenerator -reports:"TestResults/**/coverage.cobertura.xml" -targetdir:"TestResults/CoverageReport" -reporttypes:Html
+            </div>
+
+            <h3>Structure des tests</h3>
+            <ul>
+                <li><strong>Tests unitaires</strong> : Testent les composants individuels</li>
+                <li><strong>Tests d'intégration</strong> : Testent l'interaction entre les composants</li>
+                <li><strong>Tests de performance</strong> : Vérifient les performances de l'application</li>
+            </ul>
+        </section>
+
+        <section id="qualite" class="section">
+            <h2><span class="emoji">🔍</span>Qualité et Sécurité</h2>
+
+            <h3>SonarCloud</h3>
+            <p>Le projet utilise SonarCloud pour l'analyse de qualité du code :</p>
+            <ul>
+                <li><strong>Quality Gate</strong> : Seuils de qualité définis</li>
+                <li><strong>Code Smells</strong> : Détection des mauvaises pratiques</li>
+                <li><strong>Bugs</strong> : Identification des erreurs potentielles</li>
+                <li><strong>Vulnérabilités</strong> : Analyse de sécurité du code</li>
+                <li><strong>Couverture</strong> : Mesure de la couverture de tests</li>
+            </ul>
+            <p><a href="https://sonarcloud.io/project/overview?id=Ohme5083_CesiZen">Voir les résultats SonarCloud</a></p>
+
+            <h3>Snyk</h3>
+            <p>Snyk analyse les vulnérabilités de sécurité :</p>
+            <ul>
+                <li><strong>Dépendances</strong> : Scan des packages NuGet</li>
+                <li><strong>Code source</strong> : Analyse statique de sécurité</li>
+                <li><strong>Infrastructure</strong> : Vérification des configurations</li>
+            </ul>
+
+            <h3>Métriques de qualité</h3>
+            <table class="metrics-table">
+                <thead>
+                    <tr>
+                        <th>Métrique</th>
+                        <th>Seuil</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Couverture de code</td>
+                        <td>&gt; 80%</td>
+                        <td><span class="badge coverage">Coverage Badge</span></td>
+                    </tr>
+                    <tr>
+                        <td>Duplications</td>
+                        <td>&lt; 3%</td>
+                        <td><span class="badge">Duplicated Lines Badge</span></td>
+                    </tr>
+                    <tr>
+                        <td>Maintenabilité</td>
+                        <td>A</td>
+                        <td><span class="badge">Maintainability Badge</span></td>
+                    </tr>
+                    <tr>
+                        <td>Fiabilité</td>
+                        <td>A</td>
+                        <td><span class="badge">Reliability Badge</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="cicd" class="section">
+            <h2><span class="emoji">🔄</span>CI/CD</h2>
+            <p>Le projet utilise GitHub Actions pour l'intégration et le déploiement continus :</p>
+
+            <h3>Workflows disponibles</h3>
+            <div class="workflow-grid">
+                <div class="workflow-card">
+                    <h4>SonarCloud Analysis</h4>
+                    <p><code>.github/workflows/sonarcloud.yml</code></p>
+                    <ul>
+                        <li>Analyse de qualité du code</li>
+                        <li>Couverture de tests</li>
+                        <li>Publication des résultats</li>
+                    </ul>
+                </div>
+
+                <div class="workflow-card">
+                    <h4>Snyk Security</h4>
+                    <p><code>.github/workflows/snyk-security.yml</code></p>
+                    <ul>
+                        <li>Scan des vulnérabilités</li>
+                        <li>Analyse des dépendances</li>
+                        <li>Rapport de sécurité</li>
+                    </ul>
+                </div>
+
+                <div class="workflow-card">
+                    <h4>Build and Test</h4>
+                    <p><code>.github/workflows/build-test.yml</code></p>
+                    <ul>
+                        <li>Compilation multi-plateforme</li>
+                        <li>Exécution des tests</li>
+                        <li>Validation des PR</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Déclencheurs</h3>
+            <ul>
+                <li><strong>Push</strong> sur les branches <code>main</code>, <code>develop</code></li>
+                <li><strong>Pull Request</strong> vers <code>main</code></li>
+                <li><strong>Schedule</strong> quotidien pour les analyses de sécurité</li>
+            </ul>
+        </section>
+
+        <section id="contribution" class="section">
+            <h2><span class="emoji">🤝</span>Contribution</h2>
+            <p>Les contributions sont les bienvenues ! Voici comment contribuer :</p>
+
+            <div class="contribution-steps">
+                <h3>Processus de contribution</h3>
+                <ol>
+                    <li><strong>Fork et Clone</strong> le repository</li>
+                    <li><strong>Créer une branche</strong> pour votre fonctionnalité</li>
+                    <li><strong>Développer</strong> en suivant les standards</li>
+                    <li><strong>Commit et Push</strong> vos modifications</li>
+                    <li><strong>Créer une Pull Request</strong></li>
+                </ol>
+            </div>
+
+            <h3>Standards de qualité</h3>
+            <div class="quality-standards">
+                <div class="quality-item">✅ Couverture de tests > 80%</div>
+                <div class="quality-item">✅ Aucune vulnérabilité critique</div>
+                <div class="quality-item">✅ Quality Gate SonarCloud passé</div>
+                <div class="quality-item">✅ Tous les tests unitaires passent</div>
+                <div class="quality-item">✅ Code documenté et commenté</div>
+            </div>
+        </section>
+
+        <section id="documentation" class="section">
+            <h2><span class="emoji">📚</span>Documentation</h2>
+            
+            <h3>Architecture et Design</h3>
+            <ul>
+                <li><a href="./docs/adr/">Architecture Decision Records (ADR)</a></li>
+                <li><a href="./docs/diagrams/">Diagrammes de conception</a></li>
+                <li><a href="./docs/coding-standards.md">Guide de style de code</a></li>
+            </ul>
+
+            <h3>API Documentation</h3>
+            <ul>
+                <li><a href="./docs/api/">Documentation API</a></li>
+                <li><a href="./docs/postman/">Postman Collection</a></li>
+            </ul>
+
+            <h3>Déploiement</h3>
+            <ul>
+                <li><a href="./docs/deployment.md">Guide de déploiement</a></li>
+                <li><a href="./docs/environments.md">Configuration des environnements</a></li>
+            </ul>
+        </section>
+
+        <section id="support" class="section">
+            <h2><span class="emoji">🐛</span>Signaler un bug</h2>
+            <p>Si vous trouvez un bug, veuillez créer une issue avec :</p>
+            <ul>
+                <li>Description détaillée du problème</li>
+                <li>Étapes pour reproduire</li>
+                <li>Environnement (OS, version .NET, etc.)</li>
+                <li>Logs d'erreur si disponibles</li>
+            </ul>
+        </section>
+
+        <section id="licence" class="section">
+            <h2><span class="emoji">📄</span>Licence</h2>
+            <p>Ce projet est sous licence MIT. Voir le fichier <a href="LICENSE">LICENSE</a> pour plus de détails.</p>
+        </section>
+
+        <footer class="footer">
+            <h3><span class="emoji">👥</span>Équipe</h3>
+            <p><strong>Développeur Principal</strong> : <a href="https://github.com/Ohme5083">Ohme5083</a></p>
+            <p><strong>Établissement</strong> : CESI</p>
+
+            <h3><span class="emoji">📞</span>Support</h3>
+            <p>📧 Email : <a href="mailto:votre-email@cesi.fr">maxime.chassain@viacesi.fr</a></p>
+            <p>🐛 Issues : <a href="https://github.com/Ohme5083/CesiZen/issues">GitHub Issues</a></p>
+            <p>📖 Wiki : <a href="https://github.com/Ohme5083/CesiZen/wiki">GitHub Wiki</a></p>
+
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #34495e;">
+        </footer>
+    </div>
+
+    <script>
+        // Smooth scrolling pour les liens d'ancrage
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Animation d'apparition au scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Appliquer l'animation aux sections
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+
+        // Highlight du code au survol
+        document.querySelectorAll('.code-block').forEach(block => {
+            block.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 4px 20px rgba(102, 126, 234, 0.3)';
+            });
+            
+            block.addEventListener('mouseleave', function() {
+                this.style.boxShadow = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
