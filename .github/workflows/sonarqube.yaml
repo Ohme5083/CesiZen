@@ -30,31 +30,25 @@ jobs:
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
 
-    - name: Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-
     - name: Install SonarCloud scanner
       run: dotnet tool install --global dotnet-sonarscanner
+
+    - name: Remove incompatible sonar-project.properties
+      run: |
+        if [ -f "sonar-project.properties" ]; then
+          echo "Removing sonar-project.properties (incompatible with MSBuild scanner)"
+          rm sonar-project.properties
+        fi
 
     - name: Detect project structure
       id: detect
       run: |
-        echo "=== Detecting .NET 9 project structure ==="
+        echo "=== Detecting project structure ==="
         
         # Chercher les fichiers .sln
         SLN_FILES=$(find . -maxdepth 2 -name "*.sln")
         echo "Solution files found:"
         echo "$SLN_FILES"
-        
-        # Chercher les fichiers .csproj
-        CSPROJ_FILES=$(find . -maxdepth 3 -name "*.csproj")
-        echo "Project files found:"
-        echo "$CSPROJ_FILES"
         
         # Déterminer le fichier principal à utiliser
         if [ -f "CesiZen.sln" ]; then
@@ -66,7 +60,7 @@ jobs:
           echo "Using solution file: $MAIN_SLN"
         else
           echo "main_file=" >> $GITHUB_OUTPUT
-          echo "Multiple or no solution files found, will restore individual projects"
+          echo "Multiple or no solution files found"
         fi
 
     - name: Restore dependencies
@@ -76,7 +70,6 @@ jobs:
           dotnet restore "${{ steps.detect.outputs.main_file }}"
         else
           echo "Restoring individual projects:"
-          find . -name "*.csproj" -exec echo "Restoring: {}" \;
           find . -name "*.csproj" -exec dotnet restore {} \;
         fi
 
@@ -90,9 +83,15 @@ jobs:
           /o:"ohme5083" \
           /d:sonar.token="${SONAR_TOKEN}" \
           /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.projectBaseDir="${GITHUB_WORKSPACE}" \
+          /d:sonar.sources="." \
+          /d:sonar.exclusions="**/bin/**,**/obj/**,**/Migrations/**,**/wwwroot/**,**/*.js,**/*.css,**/TestResults/**" \
+          /d:sonar.tests="." \
+          /d:sonar.test.inclusions="**/*Tests.cs,**/*Test.cs" \
+          /d:sonar.test.exclusions="**/bin/**,**/obj/**" \
           /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" \
           /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
-          /d:sonar.coverage.exclusions="**/Migrations/**,**/wwwroot/**,**/*.js,**/*.css,**/bin/**,**/obj/**"
+          /d:sonar.coverage.exclusions="**/Migrations/**,**/Program.cs,**/wwwroot/**"
 
     - name: Build solution
       run: |
@@ -127,8 +126,11 @@ jobs:
               --logger "trx;LogFileName=$(basename $test_project .csproj).trx" \
               --collect:"XPlat Code Coverage" \
               --results-directory ./TestResults/ \
-              --settings coverlet.runsettings || echo "Tests failed for $test_project but continuing..."
+              -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
           done
+          
+          echo "=== Test Results ==="
+          find ./TestResults -name "*.xml" -o -name "*.trx" | head -10
         fi
 
     - name: End SonarCloud analysis
