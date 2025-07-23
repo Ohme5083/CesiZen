@@ -2,9 +2,10 @@ name: SonarCloud Analysis
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master, develop ]
   pull_request:
-    branches: [ main ]
+    types: [opened, synchronize, reopened]
+    branches: [ main, master ]
 
 jobs:
   sonarcloud:
@@ -12,15 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # Shallow clones should be disabled for better analysis
+        fetch-depth: 0  # Disable shallow clone for better analysis
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'  # Ajustez selon votre version
+        dotnet-version: |
+          6.0.x
+          7.0.x
+          8.0.x
 
     - name: Cache SonarCloud packages
       uses: actions/cache@v4
@@ -29,11 +33,18 @@ jobs:
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
 
-    - name: Install SonarCloud scanner
-      run: |
-        dotnet tool install --global dotnet-sonarscanner
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
 
-    - name: Restore dependencies
+    - name: Install SonarCloud scanner
+      run: dotnet tool install --global dotnet-sonarscanner
+
+    - name: Install dependencies
       run: dotnet restore
 
     - name: Begin SonarCloud analysis
@@ -44,16 +55,15 @@ jobs:
         dotnet sonarscanner begin \
           /k:"Ohme5083_CesiZen" \
           /o:"ohme5083" \
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+          /d:sonar.token="${SONAR_TOKEN}" \
           /d:sonar.host.url="https://sonarcloud.io" \
-          /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
-          /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
-          /d:sonar.coverage.exclusions="**/Migrations/**,**/wwwroot/**,**/*.js,**/*.css"
+          /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" \
+          /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx"
 
     - name: Build solution
       run: dotnet build --no-restore --configuration Release
 
-    - name: Run tests with coverage
+    - name: Test with coverage
       run: |
         dotnet test \
           --no-build \
@@ -61,10 +71,9 @@ jobs:
           --logger trx \
           --collect:"XPlat Code Coverage" \
           --results-directory ./TestResults/ \
-          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+          --settings coverlet.runsettings
 
     - name: End SonarCloud analysis
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      run: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
