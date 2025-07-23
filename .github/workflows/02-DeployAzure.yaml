@@ -45,12 +45,12 @@ jobs:
           script: |
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ohme5083 --password-stdin
 
-            mkdir -p ~/deploy
+            mkdir -p ~/deploy/cesizen
 
-            cat > ~/deploy/docker-compose.yml <<EOF
+            cat > ~/deploy/cesizen/docker-compose.yml <<EOF
             version: "3.8"
             services:
-              sqlserver:
+              sqlserver-cesizen:
                 image: mcr.microsoft.com/mssql/server:2022-latest
                 environment:
                   SA_PASSWORD: "toto12345*"
@@ -63,9 +63,9 @@ jobs:
               cesizen.ui:
                 image: ghcr.io/ohme5083/cesizen:${{ github.sha }}
                 environment:
-                  - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=CesiZenDb;User Id=sa;Password=toto12345*;Encrypt=False;TrustServerCertificate=True;
+                  - ConnectionStrings__DefaultConnection=Server=sqlserver-cesizen,1433;Database=CesiZenDb;User Id=sa;Password=toto12345*;Encrypt=False;TrustServerCertificate=True;
                 depends_on:
-                  - sqlserver
+                  - sqlserver-cesizen
                 networks:
                   - cesinet
                 ports:
@@ -83,5 +83,5 @@ jobs:
               sudo chmod +x /usr/local/bin/docker-compose
             fi
 
-            docker-compose -f ~/deploy/docker-compose.yml down || true
-            docker-compose -f ~/deploy/docker-compose.yml up -d
+            docker-compose -f ~/deploy/cesizen/docker-compose.yml down || true
+            docker-compose -f ~/deploy/cesizen/docker-compose.yml up -d
