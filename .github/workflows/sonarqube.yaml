@@ -1,4 +1,4 @@
-name: SonarCloud with coverage
+name: SonarCloud with Coverlet
 
 on:
   push:
@@ -11,30 +11,30 @@ jobs:
   build:
     name: Build, test and analyze
     runs-on: windows-latest
-
+    
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: 'zulu'
-
+          
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+          
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-
+          
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
           path: ~\sonar\cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-
+          
       - name: Cache SonarCloud scanner
         id: cache-sonar-scanner
         uses: actions/cache@v4
@@ -42,15 +42,14 @@ jobs:
           path: .\.sonar\scanner
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
-
+          
       - name: Install SonarScanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: powershell
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory -Force
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-          dotnet tool install --global coverlet.console
-
+          
       - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -61,12 +60,12 @@ jobs:
             /o:"ohme5083" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.opencover.reportsPaths="coverage.opencover.xml"
-
+            /d:sonar.cs.opencover.reportsPaths="./coverage.opencover.xml"
+            
       - name: Build solution
         shell: powershell
         run: dotnet build CesiZen.sln --configuration Release
-
+        
       - name: Run tests with coverage
         shell: powershell
         run: |
@@ -74,9 +73,21 @@ jobs:
             --no-build `
             --configuration Release `
             /p:CollectCoverage=true `
-            /p:CoverletOutput=./TestResults/ `
-            /p:CoverletOutputFormat=opencover
-
+            /p:CoverletOutputFormat=opencover `
+            /p:CoverletOutput=./coverage.opencover.xml `
+            /p:Exclude="[*.Test]*"
+            
+      - name: Verify coverage file
+        shell: powershell
+        run: |
+          if (Test-Path "./coverage.opencover.xml") {
+            Write-Host "Coverage file found!"
+            Get-Content "./coverage.opencover.xml" | Select-Object -First 10
+          } else {
+            Write-Host "Coverage file NOT found!"
+            Get-ChildItem -Name "*.xml"
+          }
+          
       - name: End SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
