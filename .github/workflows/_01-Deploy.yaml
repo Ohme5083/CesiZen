@@ -5,6 +5,10 @@ on:
     branches: 
     - master
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   deploy:
     uses: ./.github/workflows/02-DeployAzure.yaml
