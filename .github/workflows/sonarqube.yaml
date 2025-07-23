@@ -1,4 +1,4 @@
-name: SonarCloud with Coverlet
+name: SonarCloud with coverage
 
 on:
   push:
@@ -60,7 +60,8 @@ jobs:
             /o:"ohme5083" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.opencover.reportsPaths="./coverage.opencover.xml"
+            /d:sonar.cs.vscoveragexml.reportsPaths="**/TestResults/**/coverage.cobertura.xml" `
+            /d:sonar.coverage.exclusions="**/CesiZen.Test/**"
             
       - name: Build solution
         shell: powershell
@@ -69,23 +70,61 @@ jobs:
       - name: Run tests with coverage
         shell: powershell
         run: |
+          if (Test-Path ./TestResults) {
+              Remove-Item ./TestResults -Recurse -Force
+          }
+          
+          Write-Host "=== Exécution des tests avec couverture ===" -ForegroundColor Green
           dotnet test ./CesiZen.Test/CesiZen.Test.csproj `
             --no-build `
             --configuration Release `
-            /p:CollectCoverage=true `
-            /p:CoverletOutputFormat=opencover `
-            /p:CoverletOutput=./coverage.opencover.xml `
-            /p:Exclude="[*.Test]*"
+            --collect:"XPlat Code Coverage" `
+            --results-directory ./TestResults `
+            --settings coverlet.runsettings `
+            --logger "console;verbosity=normal"
             
-      - name: Verify coverage file
+      - name: Analyze coverage results
         shell: powershell
         run: |
-          if (Test-Path "./coverage.opencover.xml") {
-            Write-Host "Coverage file found!"
-            Get-Content "./coverage.opencover.xml" | Select-Object -First 10
+          Write-Host "=== Analyse des résultats de couverture ===" -ForegroundColor Green
+          
+          $coverageFile = Get-ChildItem -Path ./TestResults -Recurse -Include "coverage.cobertura.xml" | Select-Object -First 1
+          if ($coverageFile) {
+              Write-Host "Fichier de couverture trouvé: $($coverageFile.FullName)" -ForegroundColor Green
+              
+              $xml = [xml](Get-Content $coverageFile.FullName)
+              $globalLineRate = [math]::Round([double]$xml.coverage.GetAttribute("line-rate") * 100, 2)
+              Write-Host "Couverture globale: $globalLineRate%" -ForegroundColor $(if ($globalLineRate -gt 0) { "Green" } else { "Red" })
+              
+              Write-Host "`nAssemblies couvertes:" -ForegroundColor Yellow
+              $xml.coverage.packages.package | ForEach-Object {
+                  $packageName = $_.name
+                  $lineRate = [math]::Round([double]$_.GetAttribute("line-rate") * 100, 2)
+                  Write-Host "  $packageName : $lineRate%" -ForegroundColor $(if ($lineRate -gt 0) { "Green" } else { "Gray" })
+              }
+              
+              # Rechercher AccountController
+              $accountControllerFound = $false
+              $xml.coverage.packages.package | ForEach-Object {
+                  $_.classes.class | ForEach-Object {
+                      if ($_.name -match "AccountController") {
+                          $accountControllerFound = $true
+                          $lineRate = [math]::Round([double]$_.GetAttribute("line-rate") * 100, 2)
+                          Write-Host "AccountController couverture: $lineRate%" -ForegroundColor Green
+                      }
+                  }
+              }
+              
+              if (-not $accountControllerFound) {
+                  Write-Host "ATTENTION: AccountController non trouvé dans le rapport!" -ForegroundColor Yellow
+              }
+              
           } else {
-            Write-Host "Coverage file NOT found!"
-            Get-ChildItem -Name "*.xml"
+              Write-Host "ERREUR: Aucun fichier de couverture trouvé!" -ForegroundColor Red
+              Write-Host "Fichiers dans TestResults:" -ForegroundColor Yellow
+              Get-ChildItem -Path ./TestResults -Recurse | ForEach-Object {
+                  Write-Host "  $($_.FullName)" -ForegroundColor Gray
+              }
           }
           
       - name: End SonarCloud analysis
