@@ -1,0 +1,19 @@
+name: Deploy Workflow
+
+on:
+  push:
+    branches: 
+    - main
+
+jobs:
+  test:
+    uses: ./.github/workflows/00-TestUnit.yaml
+
+  sonarqube:
+    needs: [test]
+    uses: ./.github/workflows/01-sonarqube.yaml
+
+  deploy:
+    needs: [sonarqube]
+    uses: ./.github/workflows/02-DeployAzure.yaml
+    secrets: inherit

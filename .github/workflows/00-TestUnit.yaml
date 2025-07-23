@@ -1,4 +1,4 @@
-name: Test Application
+name: 00 - Test Unit and Integration
 
 on:
   workflow_call
