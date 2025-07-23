@@ -1,0 +1,109 @@
+name: Test Application
+
+on:
+  workflow_call
+
+jobs:
+  TestApplication:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: |
+          echo "📦 Restoring NuGet packages..."
+          dotnet restore
+
+      - name: Build
+        run: |
+          echo "🔧 Building application..."
+          dotnet build --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: |
+          echo "🧪 Running Unit Tests..."
+          dotnet test CesiZen.Test/CesiZen.Test.csproj \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./coverage \
+            --filter "Category!=Integration" \
+            --logger "trx;LogFileName=unit-test-results.trx"
+          
+          echo "✅ Unit tests completed"
+
+      - name: Run Integration Tests
+        run: |
+          echo "🔗 Running Integration Tests..."
+          dotnet test CesiZen.Test/CesiZen.Test.csproj \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --logger "trx;LogFileName=integration-test-results.trx" \
+            --filter "Category=Integration|FullyQualifiedName~IntegrationTests"
+          
+          echo "✅ Integration tests completed"
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            **/unit-test-results.trx
+            **/integration-test-results.trx
+          retention-days: 5
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: ./coverage
+          retention-days: 5
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Suite Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Completed Tests" >> $GITHUB_STEP_SUMMARY
+          echo "- **Unit Tests**: Tests individual components and methods" >> $GITHUB_STEP_SUMMARY
+          echo "- **Integration Tests**: Tests component interactions with in-memory database" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Test Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "- Coverage report available in artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Test results available in TRX format" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏗️ Build Info" >> $GITHUB_STEP_SUMMARY
+          echo "- **Framework**: .NET 8" >> $GITHUB_STEP_SUMMARY
+          echo "- **Configuration**: Release" >> $GITHUB_STEP_SUMMARY
+          echo "- **Platform**: Ubuntu Latest" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Display Test Statistics
+        if: always()
+        run: |
+          echo "📊 Generating test statistics..."
+          
+          # Compter les fichiers de test
+          UNIT_TEST_FILES=$(find . -name "*Tests.cs" -not -path "*/Integration/*" | wc -l)
+          INTEGRATION_TEST_FILES=$(find . -name "*IntegrationTests.cs" -o -path "*/Integration/*" -name "*.cs" | wc -l)
+          TOTAL_TEST_FILES=$((UNIT_TEST_FILES + INTEGRATION_TEST_FILES))
+          
+          echo "🔢 Test File Count:"
+          echo "  - Unit test files: $UNIT_TEST_FILES"
+          echo "  - Integration test files: $INTEGRATION_TEST_FILES" 
+          echo "  - Total test files: $TOTAL_TEST_FILES"
+          
+          # Afficher la structure des tests
+          echo ""
+          echo "📁 Test Project Structure:"
+          find R2.Tests -name "*.cs" -type f | head -20
