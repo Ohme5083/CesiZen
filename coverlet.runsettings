@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <!-- Exclure SEULEMENT le projet de test -->
+          <Exclude>[CesiZen.Test]*</Exclude>
+          <!-- Inclure TOUS les autres projets -->
+          <Include>[CesiZen.Data]*,[CesiZen.UI]*,[CesiZen]*</Include>
+          <!-- Ne pas exclure les contrôleurs -->
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+          <!-- Exclure seulement les fichiers vraiment non pertinents -->
+          <ExcludeByFile>**/Migrations/**</ExcludeByFile>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
