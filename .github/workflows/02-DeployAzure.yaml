@@ -1,9 +1,5 @@
 name: 02 - Deploy to Azure
 
-permissions:
-  contents: read
-  packages: write
-
 on:
   workflow_call
 
