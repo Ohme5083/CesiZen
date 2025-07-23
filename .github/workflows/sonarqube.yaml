@@ -1,134 +1,70 @@
-name: SonarCloud with coverage
+name: SonarCloud Analysis
 
 on:
   push:
-    branches:
-      - master
+    branches: [ main, develop ]
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches: [ main ]
 
 jobs:
-  build:
-    name: Build, test and analyze
-    runs-on: windows-latest
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
     
     steps:
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'zulu'
-          
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-          
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v4
-        with:
-          path: ~\sonar\cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-          
-      - name: Cache SonarCloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v4
-        with:
-          path: .\.sonar\scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-          
-      - name: Install SonarScanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
-        run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory -Force
-          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-          
-      - name: Begin SonarCloud analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
-        run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin `
-            /k:"Ohme5083_CesiZen" `
-            /o:"ohme5083" `
-            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
-            /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.vscoveragexml.reportsPaths="**/TestResults/**/coverage.cobertura.xml" `
-            /d:sonar.coverage.exclusions="**/CesiZen.Test/**"
-            
-      - name: Build solution
-        shell: powershell
-        run: dotnet build CesiZen.sln --configuration Release
-        
-      - name: Run tests with coverage
-        shell: powershell
-        run: |
-          if (Test-Path ./TestResults) {
-              Remove-Item ./TestResults -Recurse -Force
-          }
-          
-          Write-Host "=== Exécution des tests avec couverture ===" -ForegroundColor Green
-          dotnet test ./CesiZen.Test/CesiZen.Test.csproj `
-            --no-build `
-            --configuration Release `
-            --collect:"XPlat Code Coverage" `
-            --results-directory ./TestResults `
-            --settings coverlet.runsettings `
-            --logger "console;verbosity=normal"
-            
-      - name: Analyze coverage results
-        shell: powershell
-        run: |
-          Write-Host "=== Analyse des résultats de couverture ===" -ForegroundColor Green
-          
-          $coverageFile = Get-ChildItem -Path ./TestResults -Recurse -Include "coverage.cobertura.xml" | Select-Object -First 1
-          if ($coverageFile) {
-              Write-Host "Fichier de couverture trouvé: $($coverageFile.FullName)" -ForegroundColor Green
-              
-              $xml = [xml](Get-Content $coverageFile.FullName)
-              $globalLineRate = [math]::Round([double]$xml.coverage.GetAttribute("line-rate") * 100, 2)
-              Write-Host "Couverture globale: $globalLineRate%" -ForegroundColor $(if ($globalLineRate -gt 0) { "Green" } else { "Red" })
-              
-              Write-Host "`nAssemblies couvertes:" -ForegroundColor Yellow
-              $xml.coverage.packages.package | ForEach-Object {
-                  $packageName = $_.name
-                  $lineRate = [math]::Round([double]$_.GetAttribute("line-rate") * 100, 2)
-                  Write-Host "  $packageName : $lineRate%" -ForegroundColor $(if ($lineRate -gt 0) { "Green" } else { "Gray" })
-              }
-              
-              # Rechercher AccountController
-              $accountControllerFound = $false
-              $xml.coverage.packages.package | ForEach-Object {
-                  $_.classes.class | ForEach-Object {
-                      if ($_.name -match "AccountController") {
-                          $accountControllerFound = $true
-                          $lineRate = [math]::Round([double]$_.GetAttribute("line-rate") * 100, 2)
-                          Write-Host "AccountController couverture: $lineRate%" -ForegroundColor Green
-                      }
-                  }
-              }
-              
-              if (-not $accountControllerFound) {
-                  Write-Host "ATTENTION: AccountController non trouvé dans le rapport!" -ForegroundColor Yellow
-              }
-              
-          } else {
-              Write-Host "ERREUR: Aucun fichier de couverture trouvé!" -ForegroundColor Red
-              Write-Host "Fichiers dans TestResults:" -ForegroundColor Yellow
-              Get-ChildItem -Path ./TestResults -Recurse | ForEach-Object {
-                  Write-Host "  $($_.FullName)" -ForegroundColor Gray
-              }
-          }
-          
-      - name: End SonarCloud analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
-        run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for better analysis
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'  # Ajustez selon votre version
+
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+
+    - name: Install SonarCloud scanner
+      run: |
+        dotnet tool install --global dotnet-sonarscanner
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Begin SonarCloud analysis
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        dotnet sonarscanner begin \
+          /k:"Ohme5083_CesiZen" \
+          /o:"ohme5083" \
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
+          /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
+          /d:sonar.coverage.exclusions="**/Migrations/**,**/wwwroot/**,**/*.js,**/*.css"
+
+    - name: Build solution
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Run tests with coverage
+      run: |
+        dotnet test \
+          --no-build \
+          --configuration Release \
+          --logger trx \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./TestResults/ \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+    - name: End SonarCloud analysis
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
